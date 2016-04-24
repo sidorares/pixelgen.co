@@ -24,9 +24,9 @@
     <span class='FF'>&#x23e9;</span>
   </div>
   <div class='navigation fade hidden'>
-    <span class='home'>Home</span>
-    <span class='zbc'>MC</span>
-    <span class='startOfHumans'>SOH</span>
+    <span class='home'>NOW</span>
+    <span class='zbc'>BC</span>
+    <span class='ts-dinosaurs'>Dinosaurs</span>
   </div>
   <div class='space-spacer'>
     &nbsp;
@@ -92,7 +92,6 @@
 
     function easeInOut(t) {
       return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
-      return 3*(1-t)*(1-t)*t + t;
     }
 
     function stopFastScroll() {
@@ -148,6 +147,10 @@
       gen: 0,
       title: 'Now',
       description: 'not so long time ago'
+    }, {
+      gen: 65000000/25,
+      title: 'Bye-bye, dinosaurs',
+      description: ''
     }]
 
     function handleScroll(e) {
@@ -207,8 +210,8 @@
     on('.FF', 'click', FF);
     on('.FFR', 'click', FFR);
     on('.home', 'click', scrollTo(0));
-    on('.zbc', 'click', scrollTo(2000));
-    on('.startOfHumans', 'click', scrollTo(1000000));
+    on('.zbc', 'click', scrollTo(2016));
+    on('.ts-dinosaurs', 'click', scrollTo(65000000));
     on('.intro button', 'click', scrollTo(0));
 
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

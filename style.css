@@ -162,7 +162,7 @@ body {
 }
 
 .position .tooltip:after {
-  top: 6vh;
+  top: 8vh;
   left: 10vw;
 }
 
