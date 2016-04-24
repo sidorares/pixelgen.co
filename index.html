@@ -155,7 +155,7 @@
         .getBoundingClientRect().left;
       var year = -spacePos*25;
 
-      document.querySelector('.position .tooltip').innerText = (-spacePos) + ' generations';
+      document.querySelector('.position .tooltip').innerHTML = (-spacePos) + ' generations' + '<br/>' + year + ' years ago';
 
       for (var i=0; i < popups.length; ++i) {
         if (Math.abs(popups[i].gen + spacePos) < 10) {
@@ -210,6 +210,14 @@
     on('.zbc', 'click', scrollTo(2000));
     on('.startOfHumans', 'click', scrollTo(1000000));
     on('.intro button', 'click', scrollTo(0));
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-76831859-1', 'auto');
+    ga('send', 'pageview');
   </script>
 </body>
 </html>
