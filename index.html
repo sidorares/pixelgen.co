@@ -1,3 +1,215 @@
 <html>
-  <body>test</body>
+<head>
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+  <div class='intro'>
+    <h1>
+      If one human generation were only <span class="square-one">1</span> pixel
+    </h1>
+    <div class='scale'>
+      <div style="padding: 50px">
+        <p>
+          This pixel represents one average modern generation: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGP6DwABBQECz6AuzQAAAABJRU5ErkJggg==" />
+        </p>
+        <p>
+          Start scrollig to see it compared to other events in time
+        </p>
+        <button>Scroll to today</button>
+      </div>
+    </div>
+  </div>
+  <div class='speed-toggle fade hidden'>
+    <span class='FFR'>&#x23ea;</span>
+    <span class='FF'>&#x23e9;</span>
+  </div>
+  <div class='navigation fade hidden'>
+    <span class='home'>Home</span>
+    <span class='zbc'>MC</span>
+    <span class='startOfHumans'>SOH</span>
+  </div>
+  <div class='space-spacer'>
+    &nbsp;
+  </div>
+  <div class='space'>
+    <div class='timeline-top'></div>
+    <div class='timeline'>
+      <div class='known-history'></div>
+    </div>
+  </div>
+
+  <div class='timeline-popup hidden'>
+    <span class='tooltip'>
+      <span class='title'></span>
+      <span class='description'></span>
+    </span>
+  </div>
+
+  <div class='position fade'>
+    <span class='tooltip'>
+      12345 generations
+    </span>
+  </div>
+
+  <script>
+    function on(selector, event, handler) {
+      document.querySelector(selector).addEventListener(event, handler);
+    }
+
+    var FF_SPEED = 3426;
+
+    //var space = document.querySelector('.space');
+    var body = document.body;
+    var speed = 0;
+    var prevScrollTS;
+    var rafRef;
+    // fast speed: we move 114 pixels per second
+    // 114 generations - this is how much it would take you
+    // to walk distance from Earth to Sun
+    // 149597870.691/(6*8760*25)
+    // 3426 generations - from Neptune to Sun
+    // 31463470 - from Earth to Alpha Centauri
+
+    function scroll() {
+      var curTS = new Date();
+      var interval = curTS - prevScrollTS;
+      prevScrollTS = curTS;
+      //document.querySelector('.speed-toggle').innerHTML = body.scrollLeft*25;
+      body.scrollLeft += 0.001*interval*speed;
+      if (speed !== 0)
+        rafRef = window.requestAnimationFrame(scroll);
+    }
+
+    function toggleSpeed() {
+      prevScrollTS = +new Date();
+      if (speed === 0) {
+        speed = FF_SPEED;
+        scroll()
+      } else {
+        stopFastScroll();
+      }
+    }
+
+    function easeInOut(t) {
+      return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
+      return 3*(1-t)*(1-t)*t + t;
+    }
+
+    function stopFastScroll() {
+      speed = 0;
+      if (rafRef) {
+        window.cancelAnimationFrame(rafRef);
+        rafRef = undefined;
+      }
+      document.querySelector('.speed-toggle').innerHTML = "<span class='FFR'>&#x23ea;</span><span class='FF'>&#x23e9;</span>"
+      on('.FF', 'click', FF);
+      on('.FFR', 'click', FFR);
+    }
+
+    function scrollTo(years) {
+      var timelinePos = years/25;
+      return function() {
+        var spacePos = document.querySelector('.space-spacer')
+          .getBoundingClientRect().left;
+        var pos = timelinePos + (body.scrollLeft + spacePos)
+
+        stopFastScroll();
+        var start = +new Date();
+        var startScroll = body.scrollLeft;
+        var scrollDistance = pos - startScroll;
+        var targetDuration = 1000;
+        function easeScroll() {
+          var timeScrolling = new Date() - start;
+          var targetPosNow = startScroll+scrollDistance*easeInOut(timeScrolling/targetDuration);
+          body.scrollLeft = targetPosNow;
+          if (timeScrolling < targetDuration)
+            window.requestAnimationFrame(easeScroll);
+        }
+        window.requestAnimationFrame(easeScroll);
+      }
+    }
+
+    var timelinePopup = document.querySelector('.timeline-popup');
+    var navigationEleList = document.querySelectorAll('.fade');
+    var navigation = [].slice.apply(navigationEleList);
+
+    var popups = [{
+      gen: 80,
+      title: 'Year 0 BC',
+      description: (function() {
+        var grand = 'grand';
+        var arr = [];
+        while(arr.length < 80) {
+          arr.push(grand);
+        }
+        return 'This is the time of your ' + arr.join('-') + ' parents';
+      })()
+    }, {
+      gen: 0,
+      title: 'Now',
+      description: 'not so long time ago'
+    }]
+
+    function handleScroll(e) {
+      var spacePos = document.querySelector('.space-spacer')
+        .getBoundingClientRect().left;
+      var year = -spacePos*25;
+
+      document.querySelector('.position .tooltip').innerText = (-spacePos) + ' generations';
+
+      for (var i=0; i < popups.length; ++i) {
+        if (Math.abs(popups[i].gen + spacePos) < 10) {
+          timelinePopup.querySelector('.title').innerText = popups[i].title
+          timelinePopup.querySelector('.description').innerText = popups[i].description
+          timelinePopup.classList.remove('hidden');
+          break;
+        }
+      }
+      if (i == popups.length) {
+        timelinePopup.classList.add('hidden');
+      }
+
+      //document.querySelector('.speed-toggle').innerHTML = year;
+      if((document.querySelector('.space').getBoundingClientRect().left > 0) && speed < -1) {
+        stopFastScroll();
+      }
+      if (document.querySelector('.space-spacer')
+        .getBoundingClientRect().right > window.innerWidth) {
+        navigation.map(function(n) { n.classList.add('hidden'); });
+
+      } else {
+        navigation.map(function(n) { n.classList.remove('hidden'); });
+      }
+    }
+
+    function toggleFF(dir) {
+      prevScrollTS = +new Date();
+      if (Math.abs(speed) > 1) {
+        stopFastScroll()
+      } else {
+        speed = FF_SPEED*dir;
+        document.querySelector('.speed-toggle').innerHTML = "<span class='FFR'>&#9726;</span>"
+        on('.FFR', 'click', FFR);
+        scroll();
+      }
+    }
+
+    function FF() {
+      toggleFF(1);
+    }
+
+    function FFR() {
+      toggleFF(-1);
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    //on('body', 'scroll', handleScroll);
+    on('.FF', 'click', FF);
+    on('.FFR', 'click', FFR);
+    on('.home', 'click', scrollTo(0));
+    on('.zbc', 'click', scrollTo(2000));
+    on('.startOfHumans', 'click', scrollTo(1000000));
+    on('.intro button', 'click', scrollTo(0));
+  </script>
+</body>
 </html>
